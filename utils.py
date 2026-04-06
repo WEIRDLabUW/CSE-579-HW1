@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 import torch
 import torch.nn as nn
 
@@ -98,7 +98,7 @@ class PolicyAutoRegressiveModel(nn.Module):
             # Sample from this distribution and get that sample's log probability. Add the log probability
             # to the running log_probs and undiscretize the sample add append it to vals.
             # Important - use previous *sampled* actions
-            continue # TODO: Remove this when running
+            pass
             #========== TODO: end ==========
         vals = torch.cat(vals, dim=-1)
         return vals, log_probs
@@ -113,7 +113,7 @@ class PolicyAutoRegressiveModel(nn.Module):
             # the respective MLP (i.e. self.trunks[j]) to get a logit. Use the logit to create a categorical distribution.
             # Get the log prob of the respective discretized action (i.e. ac_discretized[:, j]) and add it to the running log_prob.
             # Important - use previous actions from the action variable, *not* sampled actions
-            continue # TODO: Remove this when running
+            pass
             #========== TODO: end ==========
 
         return log_prob
@@ -140,7 +140,7 @@ def rollout(
     agent_info = None
     path_length = 0
 
-    o = env.reset()[0] if isinstance(env, gym.Env) else env.reset()
+    o, _ = env.reset()
     if render:
         env.render()
 
@@ -150,12 +150,8 @@ def rollout(
         action, _ = agent(o_for_agent) # TODO: May need to convert to numpy
         action = action.cpu().detach().numpy().squeeze()
         # Step the simulation forward
-        # next_o, r, done, env_info = env.step(copy.deepcopy(action))
-        if isinstance(env, gym.Env):
-                next_o, r, terminated, truncated, _ = env.step(action)
-                done = terminated or truncated
-        else:
-            next_o, r, done, _ = env.step(action)
+        next_o, r, terminated, truncated, _ = env.step(action)
+        done = terminated or truncated
         
         # Render the environment
         if render:
@@ -205,7 +201,7 @@ def rollout_diffusion(
     rewards = []
     dones = []
     images = []
-    obs = env.reset()[0] if isinstance(env, gym.Env) else env.reset()
+    obs, _ = env.reset()
     agent.add_obs(obs.copy())
     # save visualization and rewards
     rewards = list()
@@ -219,11 +215,8 @@ def rollout_diffusion(
         # without replanning
         for i in range(len(action)):
             # stepping env
-            if isinstance(env, gym.Env):
-                obs, reward, terminated, truncated, _ = env.step(action[i])
-                done = terminated or truncated
-            else:
-                obs, reward, done, _ = env.step(action[i])
+            obs, reward, terminated, truncated, _ = env.step(action[i])
+            done = terminated or truncated
 
             if render:
                 env.render()

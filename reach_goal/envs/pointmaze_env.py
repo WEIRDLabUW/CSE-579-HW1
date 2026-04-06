@@ -754,15 +754,15 @@ class PointMazeEnv(MazeEnv, EzPickle):
             np.linalg.norm(obs_dict["achieved_goal"] - self.goal) <= 0.45
         )
 
-        return obs
+        return obs, info
 
     def step(self, action):
         if len(action.shape) > 1:
             action = action.squeeze()
-            
+
         obs, _, _, _, info = self.point_env.step(action)
         obs_dict = self._get_obs(obs)
-        
+
         reward = self.compute_reward(obs_dict["achieved_goal"], self.goal, info)
         terminated = self.compute_terminated(obs_dict["achieved_goal"], self.goal, info)
         truncated = self.compute_truncated(obs_dict["achieved_goal"], self.goal, info)
@@ -773,9 +773,7 @@ class PointMazeEnv(MazeEnv, EzPickle):
         # Update the goal position if necessary
         self.update_goal(obs_dict["achieved_goal"])
 
-        done = terminated or truncated
-
-        return obs, reward, done, info
+        return obs, reward, terminated, truncated, info
 
     def update_target_site_pos(self):
         self.point_env.model.site_pos[self.target_site_id] = np.append(

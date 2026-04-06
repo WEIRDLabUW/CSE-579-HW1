@@ -119,12 +119,12 @@ class DiffusionPolicy(Policy):
         #========== TODO: start ==========
         # normalize the states to feed into the policy. For this use the self.stats dictionary and
         # the normalize_data function.
-        
+
         # reshape the states to be the correct shape to pass into the policy network.
-                
+
         # initialize action from Gaussian noise
         naction = np.zeros(1) # TODO fill this in
-        
+
         #========== TODO: end ==========
         # init the DDPM scheduler
         self.noise_scheduler.set_timesteps(
@@ -134,8 +134,7 @@ class DiffusionPolicy(Policy):
             #========== TODO: start ==========
             # Run one single iterative denoising step on the naction.abs
             # Use the self.net to predict the noise based on the timestep k
-            
-            
+
             # run the inverse diffusion step using the noise_scheduler.step function. See https://huggingface.co/docs/diffusers/en/api/schedulers/ddpm
             # for more information on the noise_scheduler.step function.
             pass
@@ -194,27 +193,24 @@ def train_diffusion_policy(policy: DiffusionPolicy, expert_data, num_epochs=500,
                 B = nagent_pos.shape[0]
 
                 #========== TODO: begin ==========
-                
-                # first reshape the conditioning to fit into the policy by flattening it. 
+
+                # first reshape the conditioning to fit into the policy by flattening it.
                 # Then sample noise to add to the actions.
-                
+
                 # Code provided to sample a diffusion iteration for each data point. For more information about the noise
                 # scheduler, see https://arxiv.org/pdf/2006.11239
                 timesteps = torch.randint(
                     0, policy.noise_scheduler.config.num_train_timesteps,
                     (B,), device=policy.device
                 ).long()
-                
+
                 # Use the policy.noise_scheduler to add noise to the normalized actions based on the sampled
                 # noise and time steps
 
-
-                # predict the noise residual using self.net 
-
+                # predict the noise residual using self.net
 
                 # Calculate the loss between the predicted and actual noise
-                
-                
+
                 #========== TODO: end ==========
                 # optimize
                 optimizer.zero_grad()

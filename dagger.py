@@ -24,11 +24,15 @@ def simulate_policy_dagger(env, policy, expert_paths, expert_policy=None, num_ep
     trajs = expert_paths
     # Dagger iterations
     for dagger_itr in range(num_dagger_iters):
-        idxs = np.array(range(len(trajs)))
-        num_batches = len(idxs)*episode_length // batch_size
+        all_obs = np.concatenate([d['observations'] for d in trajs])
+        all_actions = np.concatenate([d['actions'] for d in trajs])
+        num_samples = all_obs.shape[0]
+        num_batches = num_samples // batch_size
         losses = []
         # Train the model with Adam
         for epoch in range(num_epochs):
+            order = np.arange(num_samples)
+            np.random.shuffle(order)
             running_loss = 0.0
             for i in range(num_batches):
                 optimizer.zero_grad()
@@ -51,8 +55,7 @@ def simulate_policy_dagger(env, policy, expert_paths, expert_policy=None, num_ep
             env.reset()
             #========== TODO: start ==========
             # Rollout the policy on the environment to collect more data, relabel them, add them into trajs_recent
-          
-            
+
             #========== TODO: end ==========
 
         trajs += trajs_recent

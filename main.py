@@ -1,5 +1,5 @@
 import DiffusionPolicy
-import gym
+import gymnasium as gym
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -22,7 +22,6 @@ torch.manual_seed(0)
 import random
 random.seed(0)
 np.random.seed(0)
-# Remember export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libGLEW.so
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', type=str, default='reacher', help='choose env (reacher/pointmaze)')
@@ -31,10 +30,6 @@ if __name__ == '__main__':
     parser.add_argument('--test', action='store_true', default=False)
     parser.add_argument('--render',  action='store_true', default=False)
     args = parser.parse_args()
-    if args.render:
-        import os
-        os.environ["LD_PRELOAD"] = "/usr/lib/x86_64-linux-gnu/libGLEW.so"
-
     # Get the expert data
     if args.env == 'reacher':
         file_path = 'data/reacher_expert_data.pkl'
@@ -56,7 +51,7 @@ if __name__ == '__main__':
     
     # Define environment
     if args.env == 'reacher':
-        env = gym.make("Reacher-v2", render_mode='human' if args.render else None)
+        env = gym.make("Reacher-v4", render_mode='human' if args.render else None)
     elif args.env == 'pointmaze':
         env = PointMazeEnv(render_mode='human' if args.render else 'rgb_array')
     else:
@@ -105,7 +100,7 @@ if __name__ == '__main__':
         elif args.train == 'dagger':
             if args.env == 'reacher':
                 # Load interactive expert
-                expert_policy = torch.load('data/reacher_expert_policy.pkl', map_location=torch.device(device))
+                expert_policy = torch.load('data/reacher_expert_policy.pkl', map_location=torch.device(device), weights_only=False)
                 print("Expert policy loaded")
                 expert_policy.to(device)
                 ptu.set_gpu_mode(True)
@@ -126,5 +121,5 @@ if __name__ == '__main__':
             raise ValueError('Invalid training method')
         torch.save(policy.state_dict(), f'{args.policy}_{args.env}_{args.train}_final.pth')
     else:
-        policy.load_state_dict(torch.load(f'{args.policy}_{args.env}_{args.train}_final.pth'))
+        policy.load_state_dict(torch.load(f'{args.policy}_{args.env}_{args.train}_final.pth', weights_only=True))
     evaluate(env, policy, args.train, num_validation_runs=100, episode_length=episode_length, render=args.render, env_name=args.env)

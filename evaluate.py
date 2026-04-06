@@ -10,7 +10,7 @@ def evaluate(env, policy, agent_name, num_validation_runs=10, episode_length=50,
     rewards_suc = 0
     rewards_all = 0
     for k in range(num_validation_runs):
-        o = env.reset()
+        o, _ = env.reset()
         if agent_name == 'diffusion':
             policy.reset()
         path = rollout(
@@ -23,7 +23,7 @@ def evaluate(env, policy, agent_name, num_validation_runs=10, episode_length=50,
             success = len(path['dones']) == episode_length
         elif agent_name == 'behavior_cloning' or agent_name == "diffusion" or agent_name == 'dagger':
             if env_name == 'reacher':
-                success = np.linalg.norm(env.get_body_com("fingertip") - env.get_body_com("target"))<0.1
+                success = np.linalg.norm(env.unwrapped.get_body_com("fingertip") - env.unwrapped.get_body_com("target"))<0.1
             elif env_name == 'pointmaze':
                 success = sum(path['dones']) > 0
             else:
