@@ -15,5 +15,3 @@ dependencies:
     - torchaudio==2.6.0
     - --extra-index-url https://download.pytorch.org/whl/cu124
     - tqdm
-    - huggingface_hub
-    - diffusers>=0.21
