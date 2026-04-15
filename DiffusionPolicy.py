@@ -1,12 +1,9 @@
 """
-Diffusion Policy implementation built from scratch (no diffusers dependency).
+Diffusion Policy implementation built from scratch.
 
-Students fill in five TODO blocks that implement the core DDPM mechanics:
+Fill in five TODO blocks that implement the core DDPM mechanics:
 the noise schedule, the forward (noising) process, the reverse (denoising)
 step, the training objective, and the sampling loop.
-
-The 1D UNet architecture (ConditionalUnet1D) is imported from policy.py
-and treated as a black box -- this assignment is about diffusion, not UNets.
 
 Reference papers:
   - Ho et al., "Denoising Diffusion Probabilistic Models", NeurIPS 2020
@@ -41,7 +38,7 @@ from policy import (
 class NoiseScheduler:
     """Discrete-time DDPM noise scheduler.
 
-    Stores beta_t, alpha_t, and alpha_bar_t on a chosen device, and
+    Stores beta_t, alpha_t, and alpha_bar_t, and
     implements the forward (training) and reverse (sampling) DDPM steps.
     """
 
@@ -62,18 +59,7 @@ class NoiseScheduler:
         #   betas      : the per-step forward variances beta_t
         #   alphas     : 1 - betas
         #   alphas_bar : cumulative product of alphas, i.e. prod_{s<=t} alpha_s
-        #
-        # Two beta schedules to support:
-        #
-        # 1) "linear": betas linearly spaced from beta_start to beta_end.
-        #
-        # 2) "squaredcos_cap_v2" (Nichol & Dhariwal 2021):
-        #       alpha_bar(t) = cos^2((t/T + s) / (1 + s) * pi/2)
-        #    with s = 0.008. Recover beta_t from
-        #       beta_t = 1 - alpha_bar(t) / alpha_bar(t - 1)
-        #    and clip to [0, 0.999] to avoid singularities near t = T.
-        #    Use T+1 anchor points (t = 0, 1, ..., T) so the divisions work.
-        #
+        # These will be used to build a "linear" schedule: betas linearly spaced from beta_start to beta_end.
 
         # ========== TODO 1: end ==========
 
@@ -135,7 +121,7 @@ class NoiseScheduler:
 
 
 # =====================================================================
-# Cosine LR with linear warmup (provided).
+# Cosine LR with linear warmup.
 # =====================================================================
 def cosine_with_warmup(
     optimizer: torch.optim.Optimizer,
@@ -154,7 +140,7 @@ def cosine_with_warmup(
 
 
 # =====================================================================
-# Dataset (provided) -- builds windowed (state, action) samples.
+# Dataset -- builds windowed (state, action) samples.
 # =====================================================================
 class DiffusionDataset(BaseDiffusionDataset):
     def __init__(
@@ -314,7 +300,7 @@ class DiffusionPolicy(Policy):
 # Training entry point.
 #
 # Boilerplate (dataset, dataloader, optimizer, LR schedule, logging)
-# is provided. The educational TODO is the inner training step.
+# is provided. The TODO is the inner training step.
 # =====================================================================
 def train_diffusion_policy(
     policy: DiffusionPolicy,
