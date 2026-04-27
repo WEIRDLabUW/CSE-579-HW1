@@ -55,6 +55,7 @@ class PolicyGaussian(nn.Module):
     def forward(self, state):
         outs = self.trunk(state)
         mu, logstd = torch.split(outs, outs.shape[-1] // 2, dim=-1)
+        logstd = torch.clamp(logstd, -5.0, 2.0)
         std = torch.exp(logstd) + EPS
         ac_dist = torch.distributions.Independent(torch.distributions.Normal(mu, std), reinterpreted_batch_ndims=1)
         ac = ac_dist.sample()
@@ -63,6 +64,7 @@ class PolicyGaussian(nn.Module):
     def log_prob(self, state, action):
         outs = self.trunk(state)
         mu, logstd = torch.split(outs, outs.shape[-1] // 2, dim=-1)
+        logstd = torch.clamp(logstd, -5.0, 2.0)
         std = torch.exp(logstd) + EPS
         ac_dist = torch.distributions.Independent(torch.distributions.Normal(mu, std), reinterpreted_batch_ndims=1)
         return ac_dist.log_prob(action)
